@@ -1,0 +1,226 @@
+DASHBOARD DEFINITIVO PARA O KUBERNETES!(VIDEO)
+https://www.youtube.com/watch?v=Q8JxtIJ9Cj0
+
+dashboard kubernetes
+k8slens.dev
+https://k8slens.dev/
+
+verificando o status do kubernets no ps
+$ minikube status
+
+deletando clusters
+$ minikube delete
+
+iniciando/reestartando cluster
+$ minikube start
+
+criando um pod chamado nginx utilizando a imagem do nginx(DOCKER)
+$ kubectl run nginx --image nginx
+
+verificando os pods existentes no cluster
+$ kubectl get pods
+
+verificando os pods existentes incluindo ip(pod), node...
+$ kubectl get pods -o wide
+
+descrevendo um pod em especifico
+$ kubectl describe pod nginx
+
+-----------------------------------------------------------------------
+criando o pod.yaml
+
+verificando os pods
+$ kubectl get pods
+
+caso seja necessário reiniciar o cluster
+$ minikube start
+
+criando um pod a partir de pod.yaml
+kubectl create -f pod.yaml
+pode ser utilizado apply tbm para criar o pod
+kubectl apply -f pod.yaml
+
+____________________________________________________________________________________________________________________________
+melhorando o vs code para edição de kubernetes *.yaml
+em file/preference/settings .. yaml .. settings.json
+..acrescentar ..
+
+"yaml.schemas":{
+        "kubernetes": "*.yaml"
+    }
+
+...segue json com as linhas acrescentadas...
+{
+    "files.autoSave": "afterDelay",
+    "redhat.telemetry.enabled": true,
+    "vs-kubernetes": {
+        "vscode-kubernetes.helm-path.windows": "C:\\Users\\rproj\\.vs-kubernetes\\tools\\helm\\windows-amd64\\helm.exe"
+    },
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "yaml.schemas":{
+        "kubernetes": "*.yaml"
+    }
+}
+____________________________________________________________________________________________________________________________
+
+deletando um pod de nome nginx-test
+kubectl delete pod nginx-test
+
+REPLICATION CONTROLLER E REPLICASETs________________________________________________________________________________________
+verificando se existe um replicaset 
+$ kubectl get replicaset
+se fosse para deletar um replicaset 
+$ kubectl delete replicaset nomeReplicaSet
+
+verificando se existe um replicationcontroller 
+$ kubectl get replicationcontroller
+se fosse para deletar um replicationcontroller 
+$ kubectl delete replicationcontroller nomeReplicationcontroller
+
+verificando se existem pods ativos 
+$ kubectl get pod 
+se fosse para deletar um pod  
+$ kubectl delete replicaset nomePod
+
+criar um dir pods e mover os arquivos nginx.yaml e pod.yaml para ele 
+
+----criando um pode:____________________
+pod.yaml________________________________
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx-test
+    tier: frontend
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+________________________________________
+
+kubectl create -f pods/pod.yaml 
+kubectl get pods 
+
+#### criando um replicaset ###
+em dir replicaset criar o arquivo rs1.yaml 
+
+rs1.yaml_______________________________________
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend-rs
+  labels:
+    app: frontend
+spec:
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        env: production
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+  selector:
+    matchLabels:
+      env: production
+  replicas: 2
+_______________________________________________ 
+
+criando o replicaset:
+$ kubectl create -f replicasets/rs1.yaml
+
+verificando o replicaset criado:
+$ kubectl get replicasets
+
+verificando a descrição do replicaset criado:
+$ kubectl describe replicaset frontend-rs
+
+mesmo que se tente criar manualmente, continua apenas 2 pods.
+$ kubectl create -f pods/nginx.yaml 
+
+escalando via linha de comando para uma escala up ...
+no caso aumentou o numero de replicas para 4...
+$ kubectl scale replicaset frontend-rs  --replicas=4
+
+tambem por linha de código, podemos escalar para down ...
+$ kubectl scale replicaset frontend-rs --replicas=3
+
+-------------------------------------------------------------
+--- DEPLOYMENTS ---------------------------------------------
+criar diretório: deployments
+
+... deletando inicialmente todos os clusters .. pods .. replicasets ..
+$ minikube delete
+
+... criando um novo cluster:
+$ minikube start
+
+---CRIANDO O DEPLOYMENT ---
+
+deployments/dp.yaml _________________________________________________________________________
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-dp
+  labels:
+    name: frontend-app
+    type: frontend
+spec:
+  template:
+    metadata:
+      name: frontend-pod
+      labels:
+        name: frontend-app
+        type: frontend
+    spec:
+      containers:
+        - name: frontend-container
+          image: nginx
+  selector:
+    matchLabels:
+      type: frontend
+  replicas: 3
+_____________________________________________________________________________________________
+
+criando o deployment
+$ kubectl create -f deployments/dp.yaml
+
+verificando o deployment criado 
+$ kubectl get deployment
+
+consultando o replicaset criado pelo deployment 
+$ kubectl get replicaset 
+
+consultando os pods criados ...
+$ kubectl get pods 
+
+consultando tudo em um só comando:
+$ kubectl get all
+
+consultando detalhes do deployment 
+$ kubectl describe deployment frontend-dp
+
+______________________________________________________________________________________________
+##############################################################################################
+==============================================================================================
+### deployment - reininiando tudo de novo .... 
+---DELETANDO O CLUSTER
+minikube delete
+
+---MINIKUBE START
+minikube start
+
+CRIANDO O DEPLOYMENT_____________________________________
+kubectl create -f deployments/frontend.yaml --save-config
+
+CONSULTANDO OS OBJETOS DO CLUSTER _________________________
+kubectl get all
+
+CONSULTANDO O STATUS DO ROLLOUT 
+kubectl rollout status deployment/frontend-dp
+
+
+aula 26
+time: 04:30
