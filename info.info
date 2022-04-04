@@ -221,6 +221,6 @@ kubectl get all
 CONSULTANDO O STATUS DO ROLLOUT 
 kubectl rollout status deployment/frontend-dp
 
-
+onde parei
 aula 26
 time: 04:30
